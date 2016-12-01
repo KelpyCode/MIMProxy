@@ -9,7 +9,7 @@ namespace Droploris.MIMProxy
 {
 	public class KeepAlive
 	{
-		public Thread t;
+		private Thread t;
 
 		public void Start()
 		{
@@ -28,5 +28,6 @@ namespace Droploris.MIMProxy
 			while (true)
 				Thread.Sleep(5000);
 		}
+
 	}
 }

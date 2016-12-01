@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,21 +10,45 @@ namespace Droploris.MIMProxy
 	class Program
 	{
 		public static MIMServer m;
+		private static KeepAlive ka;
 
-		static void Main(string[] args)
+		public static void Main(string[] args)
 		{
-			KeepAlive ka = new KeepAlive();
+			NativeMethods.Handler = ConsoleCtrlCheck;
+			NativeMethods.SetConsoleCtrlHandler(NativeMethods.Handler, true);
+			ka = new KeepAlive();
 			ka.Start();
 
 			m = new MIMServer();
 
-			AppDomain.CurrentDomain.ProcessExit += ProgramExit;
 		}
 
-		private static void ProgramExit(object sender, EventArgs e)
+
+		private static bool ConsoleCtrlCheck(int eventType)
 		{
-			if (m != null)
+			if (eventType != 2) return false;
+			try
+			{
+				ka.Stop();
 				m.Close();
+			}
+			catch (Exception e)
+			{ Console.WriteLine(e.ToString()); }
+			Environment.Exit(0);
+
+			return false;
+		}
+
+		internal static class NativeMethods
+		{
+			// Keeps it from getting garbage collected
+			internal static ConsoleEventDelegate Handler;
+
+			[DllImport("kernel32.dll", SetLastError = true)]
+			internal static extern bool SetConsoleCtrlHandler(ConsoleEventDelegate callback, bool add);
+
+			// Pinvoke
+			internal delegate bool ConsoleEventDelegate(int eventType);
 		}
 	}
 }

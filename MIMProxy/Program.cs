@@ -9,7 +9,7 @@ namespace Droploris.MIMProxy
 {
 	class Program
 	{
-		public static MIMServer m;
+		public static Server m;
 		private static KeepAlive ka;
 
 		public static void Main(string[] args)
@@ -19,7 +19,7 @@ namespace Droploris.MIMProxy
 			ka = new KeepAlive();
 			ka.Start();
 
-			m = new MIMServer();
+			m = new Server();
 
 		}
 

@@ -7,14 +7,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Titanium.Web.Proxy;
 using Titanium.Web.Proxy.Models;
+using CsQuery;
 
 namespace Droploris.MIMProxy
 {
-	public class MIMServer
+	public class Server
 	{
 		public ProxyServer ps;
 
-		public MIMServer()
+		public Server()
 		{
 			ps = new ProxyServer();
 
@@ -72,7 +73,7 @@ namespace Droploris.MIMProxy
 
 		private async Task OnResponse(object arg1, Titanium.Web.Proxy.EventArguments.SessionEventArgs e)
 		{
-			Console.WriteLine(e.WebSession.Request.Url + " RES");
+			//Console.WriteLine(e.WebSession.Request.Url + " RES");
 
 			if (e.WebSession.Request.Method == "GET" || e.WebSession.Request.Method == "POST")
 			{
@@ -84,26 +85,50 @@ namespace Droploris.MIMProxy
 						await e.SetResponseBody(bodyBytes);*/
 
 						string body = await e.GetResponseBodyAsString();
-						await e.SetResponseBodyString(body+
+
+						CQ dom = CQ.Create(body);
+
+						if (e.WebSession.Request.RequestUri.AbsoluteUri.Contains("steamcommunity.com"))
+						{
+
+							dom["head"].Append("<style>"
+								+".admint span{color:red !important;}"+
+								"</style>");
+							dom[".profile_header"].Prepend("<a class='btn_profile_action btn_medium' style='position:fixed;left:0px;top:0px;' href='javascript: alert(\"Control Panel error\"); '><span>Control Panel</span></a>");
+
+							dom[".profile_header_content"].Css("margin-bottom", "30px");
+
+							dom[".profile_header_centered_persona"].Append("<div><script>document.write(g_rgProfileData['steamid']);</script></div>");
+
+							dom[".profile_header_actions"].Append(
+								"<br><a class='btn_profile_action btn_medium' href='javascript: alert(\"ban\"); '><span>Ban</span></a>").Append(
+								"<a class='btn_profile_action btn_medium' href='javascript: alert(\"ban\"); '><span>Admin Settings</span></a>");/*.Append(
+								"<input type='textbox' id='evalBox' />").Append(
+								"<a class='btn_profile_action btn_medium' href='javascript: try{eval(document.querySelectorAll(\"#evalBox\")[0].value)}catch(e){alert(e);} '><span>Run</span></a>");*/
+
+
+							dom[".profile_item_links"].Append("<div class='profile_count_link ellipsis admint'><a href=''><span class='count_link_label'>Reports</span>&nbsp;</a></div>");
+						}
+
+						await e.SetResponseBodyString(dom.Render()); /*+
 							"<style>body { margin: 0 auto !important;-moz - transform: scaleX(-1) !important;-o - transform: scaleX(-1) !important;-webkit - transform: scaleX(-1);transform: scaleX(-1);filter: FlipH;"
-							+ "-ms - filter: \"FlipH\" !important;}</style>");
+							+ "-ms - filter: \"FlipH\" !important;}</style>"*/
 					}
 
-					if (e.WebSession.Response.ContentType != null && e.WebSession.Response.ContentType.Trim().ToLower().Contains("image"))
+					/*if (e.WebSession.Response.ContentType != null && e.WebSession.Response.ContentType.Trim().ToLower().Contains("image"))
 					{
 						await e.SetResponseBody(new byte[] { });
+					}*/
 					}
-				}
 			}
 
 		}
 
 		private async Task OnRequest(object arg1, Titanium.Web.Proxy.EventArguments.SessionEventArgs e)
 		{
-			Console.WriteLine(e.WebSession.Request.Url + " REQ");
+			//Console.WriteLine(e.WebSession.Request.Url + " REQ");
 
 
-			////read request headers
 			var requestHeaders = e.WebSession.Request.RequestHeaders;
 
 			var method = e.WebSession.Request.Method.ToUpper();
@@ -113,15 +138,13 @@ namespace Droploris.MIMProxy
 				byte[] bodyBytes = await e.GetRequestBody();
 				await e.SetRequestBody(bodyBytes);
 
-				//Get/Set request body as string
 				/*
 				string bodyString = await e.GetRequestBodyAsString();
 				await e.SetRequestBodyString(bodyString);*/
 
 			}
 
-			//To cancel a request with a custom HTML content
-			//Filter URL
+
 			if (e.WebSession.Request.RequestUri.AbsoluteUri.Contains("tenrys.isgay"))
 			{
 				await e.Ok("<!DOCTYPE html>" +
@@ -132,11 +155,10 @@ namespace Droploris.MIMProxy
 					  "</body>" +
 					  "</html>");
 			}
-			//Redirect example
-			if (e.WebSession.Request.RequestUri.AbsoluteUri.Contains("wikipedia.org"))
+			/*if (e.WebSession.Request.RequestUri.AbsoluteUri.Contains("wikipedia.org"))
 			{
 				await e.Redirect("https://www.paypal.com");
-			}
+			}*/
 		}
 
 

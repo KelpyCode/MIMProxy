@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="KeepAlive.cs" />
     <Compile Include="MIMServer.cs" />
+    <Compile Include="ModifiedPages.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

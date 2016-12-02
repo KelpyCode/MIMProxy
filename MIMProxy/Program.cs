@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using CsQuery;
 
 namespace Droploris.MIMProxy
 {
@@ -20,7 +21,7 @@ namespace Droploris.MIMProxy
 			ka.Start();
 
 			m = new Server();
-
+			ModifiedWebsites.AddPages(m);
 		}
 
 
